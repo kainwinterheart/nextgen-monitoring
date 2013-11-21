@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<base href="https://st.drweb.com/static/new-www/">
+<script type="text/javascript" language="JavaScript" src="/static/datepick/datetimepicker_ru.js"></script>
+<script type="text/javascript" language="JavaScript" src="/static/jquery.js"></script>
+<script type="text/javascript" language="JavaScript" src="events/jquery.json-2.2.min.js"></script>
+<script type="text/javascript" language="JavaScript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<script type="text/javascript" language="JavaScript" src="additions.js"></script>
+<title>Monitor</title>
+<style type="text/css">
+html, body {
+	line-height: 1;
+	font: 13px Helvetica, 'Liberation Sans', Arial, FreeSans, sans-serif;
+	background-color: #ffffff;
+	color: #000000;
+	width: 100%;
+	height: 100%;
+	padding: 0px;
+	margin: 0px;
+}
+
+a {
+	text-decoration: none;
+	color: #D01F3C;
+}
+
+a:hover {
+	color: #000000;
+}
+
+input[type=text],
+input[type=password],
+textarea {
+	outline: none;
+	border: 1px solid #cccccc;
+	border-bottom-color: #999999;
+	border-right-color: #999999;
+	background-color: #ffffff;
+	padding: 4px 5px 3px 3px;
+	color: #000000;
+}
+
+select, input[type=checkbox] {
+	outline: none;
+	border: 1px solid #cccccc;
+	border-bottom-color: #999999;
+	border-right-color: #999999;
+	background-color: #ffffff;
+	padding: 2px;
+	color: #000000;
+}
+
+#container
+{
+	width: 100%;
+}
+
+#content
+{
+	padding: 4px;
+}
+
+#searchform
+{
+	border: 1px solid #aaaaaa;
+}
+
+pre /* http://forums.techguy.org/web-design-development/249849-forcing-long-text-lines-wrap.html */
+{
+	white-space: -moz-pre-wrap; /* Mozilla, supported since 1999 */
+	white-space: -pre-wrap; /* Opera 4 - 6 */
+	white-space: -o-pre-wrap; /* Opera 7 */
+	white-space: pre-wrap; /* CSS3 - Text module (Candidate Recommendation) http://www.w3.org/TR/css3-text/#white-space */
+	word-wrap: break-word; /* IE 5.5+ */
+}
+
+#overlay {
+	z-index: 100500;
+	opacity: 0.75;
+	background-color: #070707;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	display: none;
+}
+
+.error {
+	width: 100%;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	height: 39px;
+	background-color: #AD141F;
+	color: #F9F7ED;
+	padding-top: 10px;
+	font-size: 20px;
+	font-weight: bold;
+	border-bottom: 1px solid #000000;
+	z-index: 100501;
+}
+
+td.header
+{
+	width: 200px;
+	font-weight:bold;
+}
+
+tr.lots_header,
+tr.lots_dashboard
+{
+        background-color:#ffffbb;
+}
+
+tr.lots_header
+{
+        cursor:pointer;
+}
+
+tr.lots_header td
+{
+        text-align:center;
+        font-weight:bold;
+}
+
+tr.lots_dashboard td table
+{
+        background-color: #ffffff;
+}
+</style>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le styles -->
+    <link href="bootstrap/assets/css/bootstrap.css" rel="stylesheet">
+    <link href="bootstrap/assets/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="bootstrap/assets/css/docs.css" rel="stylesheet">
+    <link href="bootstrap/assets/js/google-code-prettify/prettify.css" rel="stylesheet">
+
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+      .sidebar-nav {
+        padding: 9px 0;
+      }
+    </style>
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+    <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <style type="text/css">
+    body,select,textarea,input {
+    	color: #000000 !important;
+/*	font-size: 16px;*/
+    }
+    
+td.value input[type="text"],
+textarea
+{
+	width: 98%;
+}
+
+textarea
+{
+	height: 200px;
+}
+
+.node
+{
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.node .state.green
+{
+	background-image: url('/static/circles/green.png');
+	height: 32px;
+	line-height: 32px;
+	background-repeat:no-repeat;
+	background-position: center center;
+}
+
+.node .state.red
+{
+	background-image: url('/static/circles/red.png');
+	height: 32px;
+	line-height: 32px;
+	background-repeat:no-repeat;
+	background-position: center center;
+	cursor: pointer;
+}
+    </style>
+
+</head>
+<body>
+<div id="overlay" style="display:none;"></div>
+<div class="error" style="display:none; margin:0 auto; text-align:center"></div>
+<div id="error_data" style="display:none;">[ERROR]</div>
+
+<div class="navbar navbar-inverse navbar-fixed-top">
+   <div class="navbar-inner">
+      <div class="container">
+         <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+         </button>
+         <a class="brand" href="#" onclick="return false;" style="color:#ffffff;">Monitor</a>
+         <div class="nav-collapse collapse">
+            <ul class="nav">
+	    </ul>
+         </div>
+      </div>
+   </div>
+</div>
+
+<div id="container">
+
+
+      <div class="row" style="text-align:center;">
+
+[% FOREACH node IN CFG %]
+
+<div id="node[% node.name | html | replace( '\W', '_' ) %]" class="node span3" data-node="[% node.name | html %]">
+<div class="state green">&nbsp;</div>
+<div class="name">[% node.name | html %]</div>
+<br />
+</div>
+
+[% END %]
+
+<p>&nbsp;</p>
+
+</div>
+</div>
+
+<script type="text/javascript">
+function enqueue_get_state()
+{
+	setTimeout( get_state, 5000 );
+
+	return true;
+}
+
+function get_state()
+{
+	$.ajax({
+		'url': window.location.href,
+		'type': 'GET',
+		'data': {
+			'nocache': ( new Date() ).getTime(),
+			'please': 'check'
+		},
+		'success': function( data )
+		{
+			for( var i in data )
+			{
+				var $el = $( '#node' + data[ i ].replace( /\W/g, '_' ) );
+				var $state = $el.find('.state:eq(0)');
+
+				if( $state.hasClass( 'green' ) )
+				{
+					$state.removeClass('green');
+					$state.addClass('red');
+
+					$state.bind( 'click', function()
+					{
+						fix( $(this) );
+
+						return true;
+					} );
+				}
+			}
+
+			enqueue_get_state();
+
+			return true;
+		},
+		'error': function()
+		{
+			enqueue_get_state();
+
+			return true;
+		},
+		'dataType': 'json'
+	});
+
+	return true;
+}
+
+function fix( $sender )
+{
+	$.ajax({
+		'url': window.location.href,
+		'type': 'GET',
+		'async': false,
+		'data': {
+			'nocache': ( new Date() ).getTime(),
+			'please': 'fix',
+			'service': $sender.closest( '.node' ).attr( 'data-node' )
+		},
+		'success': function( result )
+		{
+			if( parseInt( result ) == 1 )
+			{
+				var $state = $sender.closest( '.node' ).find( '.state:eq(0)' );
+
+				$state.removeClass('red');
+				$state.addClass('green');
+
+				$sender.unbind('click');
+			}
+
+			return true;
+		},
+		'error': function()
+		{
+			Additions.Error.show( 'Could not fix, try again later' );
+
+			return true;
+		}
+	});
+
+	return true;
+}
+
+$(document).ready(function(){ get_state() });
+</script>
+
+</body>
+</html>
+
